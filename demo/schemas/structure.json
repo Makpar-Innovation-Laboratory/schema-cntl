@@ -1,0 +1,20 @@
+{
+  "schema": {
+      "engine": "postgres",
+      "tables": [
+          {
+              "name": "<table-name>",
+              "columns": [
+                  {
+                    "name": "<name>",
+                    "type": "<bool | varchar | float8 | int | decimal | date> : optional if primary key == true",
+                    "limit": "<limit> : optional, defaults to None",
+                    "primary_key": "<true | false> : optional, defaults to false",
+                    "foreign_key_references" : "<fk> : optional, defaults to None",
+                    "not_null": "<true | false> : optional, defaults to false"
+                  }
+              ]
+          }
+      ]
+    }
+}
