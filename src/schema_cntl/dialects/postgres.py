@@ -14,18 +14,18 @@ class Column:
   @staticmethod
   def column_definition(name, data_type, limit=None, foreign_key_references=None, primary_key=False, not_null=False):
     if primary_key:
-        return "{} SERIAL PRIMARY KEY".format(name)
+        return "{%s} SERIAL PRIMARY KEY"%(name)
 
     if foreign_key_references is not None:
-        return "{} integer REFERENCES {}".format(name, foreign_key_references)
+        return "{%s} integer REFERENCES {%s}"%(name, foreign_key_references)
 
-    col_def = "{} {}".format(name, data_type.value)
+    col_def = "{%s} %s"%(name, data_type.value)
 
     if limit is not None:
-        col_def = "{}({})".format(col_def, limit)
+        col_def += "(%s)"%(limit)
 
     if not_null:
-        col_def = "{} NOT NULL".format(col_def)
+        col_def += " NOT NULL"
 
     return col_def
 
