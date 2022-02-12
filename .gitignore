@@ -1,0 +1,7 @@
+*.env
+!.sample.env
+*.pyc
+/.vscode/
+.coverage
+/.pytest_cache/
+/dist/
