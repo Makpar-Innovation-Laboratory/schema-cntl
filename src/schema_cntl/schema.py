@@ -48,13 +48,15 @@ def differences(id, strand_start_index, strand_end_index):
     end_columns = end_strand.schema.tables[0]['columns']
     end_names = [ col['name'] for col in end_columns ]
     
-    # will include new columns, but also altered columns
-    relative_diff = [ col for col in end_columns if col not in start_columns]
+    diff_rel_to_start = [ col for col in end_columns if col not in start_columns]
 
-    relative_altered = [ col for col in relative_diff if col['name'] in start_names]
+    # columns whose names are in diff, but whose properties are different
+    altered_rel_to_start = [ col for col in diff_rel_to_start if col['name'] in start_names]
 
-    relative_new = [ col for col in relative_diff if col not in relative_altered ]
+    # columns whose names are in diff and not in start at all
+    new_rel_to_start = [ col for col in diff_rel_to_start if col not in altered_rel_to_start ]
 
-    print(relative_diff)
-    print(relative_altered)
-    print(relative_new)
+    # columns not in diff, but in start
+    removed_rel_to_start = [ col for col in start_columns if col['name'] not in end_names]
+
+
