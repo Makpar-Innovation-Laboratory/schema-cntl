@@ -15,7 +15,11 @@
 #
 #       c. previous_revision = revision
 
+from innoldb.qldb import Document
+
+from schema_cntl import settings
 
 def commit_schema(schema):
-    print(schema)
-    pass
+    schema_doc = Document(table=settings.TABLE, ledger=settings.LEDGER, snapshot=schema)
+    schema_doc.save()
+    return schema_doc

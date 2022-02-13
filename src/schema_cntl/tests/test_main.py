@@ -17,4 +17,5 @@ from main import parse_cli_args
 def test_cli_arg_parsing(args,exp_props,exp_values):
     parsed_args = parse_cli_args(args)
     print(parsed_args)
-    assert all(getattr(parsed_args, exp_prop) == exp_value for exp_prop, exp_value in zip(exp_props, exp_values))
+    assert all( getattr(parsed_args, exp_prop) == exp_value 
+                  for exp_prop, exp_value in zip(exp_props, exp_values) )

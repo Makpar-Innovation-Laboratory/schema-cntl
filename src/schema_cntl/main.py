@@ -21,19 +21,34 @@ def parse_cli_args(args):
 
 
 def commit(file):
-    if os.path.exists(os.path.join(os.getcwd(), file)):
-        with open(os.path.join(os.getcwd(), file), 'r') as infile:
-            schema = json.loads(infile)
-        return commit_schema(schema)
-    log.warning("No schema found at %s", os.path.join(os.getcwd(), file))
+    file_path = os.path.join(os.getcwd(), file)
+
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as infile:
+            schema = json.load(infile)
+
+        doc = commit_schema(schema)
+
+        if schema.get('id', None) is None or schema.get('meta_id', None) is None:
+            schema['id'], schema['meta_id'] = doc.id, doc.meta_id
+
+        with open(file_path, 'w') as outfile:
+            json.dump(schema, outfile)
+
+        log.info("Schema commited to DOCUMENT(meta_id=%s)", doc.meta_id)
+
+    else:
+        log.warning("No schema found at %s", file_path)
     
         
 def do_program(args):
     args = parse_cli_args(args)
 
     if args.action[0] == 'commit':
-        commit(args.action[1])
-
+        if len(args.action) > 1:
+            commit(args.action[1])
+        else:
+            log.warning("No file path inputted with commit action")
 
 def entrypoint():
     """Entrypoint for build package
