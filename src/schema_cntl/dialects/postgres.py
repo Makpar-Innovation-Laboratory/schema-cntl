@@ -12,24 +12,32 @@ class DataTypes(Enum):
   DATE="date"
 
   @staticmethod
+  def limited():
+    return [DataTypes.CHAR, DataTypes.VARCHAR]
+
+  @staticmethod
   def convert(string = None):
       if string is None:
-          return None
+          return None, None
+
+      limit = None
+      if any(datatype.value in string for datatype in DataTypes.limited()) \
+          and '(' in string:
+            split = string.replace(')', '').split('(')
+            string, limit = split[0], int(split[-1])
+
       for member in DataTypes.__members__.values():
-          if string == member.value:
-              return member
-      return None
+          if member.value == string:
+              return member, limit
+      return None, None
 
   @staticmethod
   def belongs_to_types(string, *enums):
       types = [ member.value for member in DataTypes.__members__.values() if member in enums ]
-      try:
-          for data_type in types:
-              if string == data_type:
-                  return True
-          return False
-      except ValueError:
-          return False
+      for data_type in types:
+          if string == data_type:
+              return True
+      return False
 
 class Column:
   
@@ -41,25 +49,25 @@ class Column:
         :return: Column definition clause for `CREATE TABLE` **PostgreSQL** statement.
         :rtype: str
         """
-        # data type is not parameterized in string, so it is converted into an enum before formatting
-        # so user input can never directly touched the query string
-        enumerated_type = DataTypes.convert(col_def['type'])
-        if enumerated_type is None:
-            raise ValueError("No data type specified for column %s".format(col_def['name']))
-
         if col_def.get('primary_key', None) is not None:
-            return "{%s} SERIAL PRIMARY KEY".format(col_def['name'])
+            return "{%s} SERIAL PRIMARY KEY"%(col_def['name'])
 
         if col_def.get('foreign_key_references', None) is not None:
-            return "{%s} integer REFERENCES {%s}".format(col_def['name'], col_def['foreign_key_references'])
+            return "{%s} integer REFERENCES {%s}"%(col_def['name'], col_def['foreign_key_references'])
 
-        col_def = "{%s} %s".format(col_def['name'], enumerated_type.value)
-
+        # data type is not parameterized in string, so it is converted into an enum before formatting
+        # so user input can never directly touched the query string
+        enumerated_type, limit = DataTypes.convert(col_def['type'])
+        if enumerated_type is None:
+            raise ValueError("No data type specified for column %s"%(col_def['name']))
+        definition = "{%s} %s"%(col_def['name'], enumerated_type.value)
+        if limit is not None:
+            definition += "(%s)"%(limit)
 
         if col_def.get('not_null', None) is not None:
-            col_def += " NOT NULL"
+            definition += " NOT NULL"
 
-        return col_def
+        return definition
       
     @staticmethod
     def add(**col_def):
@@ -71,18 +79,21 @@ class Column:
         """
         # data type is not parameterized in string, so it is converted into an enum before formatting
         # so user input can never directly touched the query string
-        enumerated_type = DataTypes.convert(col_def['type'])
+        enumerated_type, limit = DataTypes.convert(col_def['type'])
         if enumerated_type is None:
-            raise ValueError("No data type specified for column %s".format(col_def['name']))
+            raise ValueError("No data type specified for column %s"%(col_def['name']))
 
-        add_column = "ADD COLUMN {%s} %s".format(col_def['name'], enumerated_type.value)
+        add_column = "ADD COLUMN {%s} %s"%(col_def['name'], enumerated_type.value)
+
+        if limit is not None:
+            definition += "(%s)"%(limit)
 
         if col_def.get('not_null', None):
             add_column += " NOT NULL"
 
         if col_def.get('foreign_key_references', None) is not None:
             fkr = col_def['foreign_key_references']
-            add_column += "CONSTRAINT fk_%s_%s REFERENCES {%s}".format(col_def['name'], fkr, fkr)
+            add_column += "CONSTRAINT fk_%s_%s REFERENCES {%s}"%(col_def['name'], fkr, fkr)
 
         return add_column
 

@@ -16,5 +16,6 @@
 #       c. previous_revision = revision
 
 
-def commit_schema():
+def commit_schema(schema):
+    print(schema)
     pass

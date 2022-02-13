@@ -10,16 +10,17 @@ sys.path.append(APP_DIR)
 from dialects.postgres import DataTypes, Column, Table
 
 @pytest.mark.parametrize('string,result',[
-  ('bool', DataTypes.BOOL),
-  ('text', DataTypes.TEXT),
-  ('varchar', DataTypes.VARCHAR),
-  ('char', DataTypes.CHAR),
-  ('decimal', DataTypes.DECIMAL),
-  ('int', DataTypes.INTEGER),
-  ('date', DataTypes.DATE)
+  ('bool', (DataTypes.BOOL, None)),
+  ('text', (DataTypes.TEXT, None)),
+  ('varchar(100)', (DataTypes.VARCHAR, 100)),
+  ('char(50)', (DataTypes.CHAR, 50)),
+  ('decimal', (DataTypes.DECIMAL, None)),
+  ('int', (DataTypes.INTEGER, None)),
+  ('date', (DataTypes.DATE, None))
 ])
 def test_data_type_enumeration(string, result):
-    assert DataTypes.convert(string) == result  
+    actual = DataTypes.convert(string)
+    assert all (act == exp for act, exp in zip(actual, result))
 
 @pytest.mark.parametrize('string,enums,result',[
   ('bool', [DataTypes.VARCHAR, DataTypes.CHAR], False),
@@ -32,21 +33,33 @@ def test_data_type_enumeration(string, result):
 def test_belongs(string, enums, result):
     assert DataTypes.belongs_to_types(string, *enums) == result
 
-@pytest.mark.parametrize('name,data_type,limit,fk,pk,nnull,result', [
-  ('test', DataTypes.INTEGER, None, None, False, False, "{test} int"),
-  ('column', DataTypes.VARCHAR, 50, None, False, True, "{column} varchar(50) NOT NULL"),
-  ('key', None, None, None, True, False, "{key} SERIAL PRIMARY KEY"),
-  ('fk', None, None, 'foreign_table', False, False, "{fk} integer REFERENCES {foreign_table}" )
+@pytest.mark.parametrize('col_def,result', [
+  ({
+      "name": "test",
+      "type": "int",
+  }, "{test} int"),
+  ({
+      "name": "column",
+      "type": "varchar(50)",
+      "not_null": True
+  }, "{column} varchar(50) NOT NULL"),
+  ({
+     "name": "key",
+     "primary_key": True
+  }, "{key} SERIAL PRIMARY KEY"),
+  ({
+    "name": "fk",
+    "foreign_key_references": "foreign_table"
+  }, "{fk} integer REFERENCES {foreign_table}")
 ])
-def test_column_definition(name, data_type, limit, fk, pk, nnull, result):
-    assert Column.define(name,data_type, limit, fk, pk, nnull) == result
+def test_column_definition(col_def, result):
+    assert Column.define(**col_def) == result
 
 @pytest.mark.parametrize('name,col_defs,result',[
   ('table_name', [
         {
             "name": "column_name",
-            "type": "varchar",
-            "limit": 100,
+            "type": "varchar(100)",
         },
         {
             "name": "column_name_2",
@@ -63,8 +76,7 @@ def test_column_definition(name, data_type, limit, fk, pk, nnull, result):
         },
         {
             "name": "column_name_5",
-            "type": "char",
-            "limit": 25,
+            "type": "char(25)",
         }
     ],
   "CREATE TABLE {table_name} ({column_name} varchar(100), {column_name_2} int NOT NULL, {column_name_3} SERIAL PRIMARY KEY, {column_name_4} integer REFERENCES {foreign_table}, {column_name_5} char(25));"),

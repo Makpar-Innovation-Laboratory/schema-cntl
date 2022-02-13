@@ -1,6 +1,7 @@
 {
   "schema": {
       "engine": "postgres",
+      "name": "test_schema",
       "tables": [
           {
               "name": "test_table",
