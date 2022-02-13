@@ -12,7 +12,7 @@ from main import parse_cli_args
 
 @pytest.mark.parametrize('args,exp_props,exp_values',[
   (['commit', 'src/schema.json'], ['action'], [['commit', 'src/schema.json']]),
-  (['generate','--start' ,'0', '--end', '1'], ['action', 'start', 'end'], [['generate'], '0', '1'])
+  (['generate', 'schema.json','--start' ,'0', '--end', '1'], ['action', 'start', 'end'], [['generate', 'schema.json'], '0', '1'])
 ])
 def test_cli_arg_parsing(args,exp_props,exp_values):
     parsed_args = parse_cli_args(args)
