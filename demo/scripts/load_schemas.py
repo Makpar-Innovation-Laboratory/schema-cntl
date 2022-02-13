@@ -2,7 +2,7 @@ import json
 import os
 from pprint import pprint
 
-DEMO_DIR = os.path.dirname(os.path.abspath(__file__))
+DEMO_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCHEMA_DIR = os.path.join(DEMO_DIR, 'schemas')
 VERSIONS= ['v1.0.0', 'v1.0.1', 'v1.0.2']
 

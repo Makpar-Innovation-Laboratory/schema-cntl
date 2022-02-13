@@ -1,7 +1,7 @@
 import os
 from pprint import pprint
 
-DEMO_DIR = os.path.dirname(os.path.abspath(__file__))
+DEMO_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCHEMA_DIR = os.path.join(DEMO_DIR, 'schemas')
 VERSIONS= ['v1.0.0', 'v1.0.1', 'v1.0.2']
 
@@ -14,6 +14,8 @@ if __name__=="__main__":
     #       on import and set the ledger. 
     from innoldb.qldb import Query
 
-    results = Query('version_control').get_all()
+    results = Query('version_control').history()
     for result in results:
-        pprint(vars(result))
+        pprint(vars(result.metadata))
+        pprint(vars(result.data.schema))
+        print('--------------------')

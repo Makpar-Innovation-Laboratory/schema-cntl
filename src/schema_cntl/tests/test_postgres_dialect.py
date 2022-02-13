@@ -39,8 +39,7 @@ def test_belongs(string, enums, result):
   ('fk', None, None, 'foreign_table', False, False, "{fk} integer REFERENCES {foreign_table}" )
 ])
 def test_column_definition(name, data_type, limit, fk, pk, nnull, result):
-    test_result = Column.define(name,data_type, limit, fk, pk, nnull)
-    assert test_result == result
+    assert Column.define(name,data_type, limit, fk, pk, nnull) == result
 
 @pytest.mark.parametrize('name,col_defs,result',[
   ('table_name', [

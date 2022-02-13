@@ -33,40 +33,56 @@ class DataTypes(Enum):
 
 class Column:
   
-  @staticmethod
-  def define(name, data_type, limit=None, foreign_key_references=None, primary_key=False, not_null=False):
-      """Create a column definition clause in **PostgreSQL**. Column names will be parameterized to prevent injection, i.e. the `name` passed into this method is not the name of the column, but the name of the column parameter in the clause that is passed into the query cursor.
+    @staticmethod
+    def define(**col_def):
+        """Create a column definition clause in **PostgreSQL**. Column names will be parameterized to prevent injection, i.e. the `name` passed into this method is not the name of the column, but the name of the column parameter in the clause that is passed into the query cursor.
 
-      :param name: [description]
-      :type name: [type]
-      :param data_type: [description]
-      :type data_type: [type]
-      :param limit: [description], defaults to None
-      :type limit: [type], optional
-      :param foreign_key_references: [description], defaults to None
-      :type foreign_key_references: [type], optional
-      :param primary_key: [description], defaults to False
-      :type primary_key: bool, optional
-      :param not_null: [description], defaults to False
-      :type not_null: bool, optional
-      :return: [description]
-      :rtype: [type]
-      """
-      if primary_key:
-          return "{%s} SERIAL PRIMARY KEY"%(name)
+        :param kwargs: Keyword arguments. The input format should make the `schema.json` input format.
+        :return: Column definition clause for `CREATE TABLE` **PostgreSQL** statement.
+        :rtype: str
+        """
+        if col_def.get('primary_key', None) is not None:
+            return "{%s} SERIAL PRIMARY KEY".format(col_def['name'])
 
-      if foreign_key_references is not None:
-          return "{%s} integer REFERENCES {%s}"%(name, foreign_key_references)
+        if col_def.get('foreign_key_references', None) is not None:
+            return "{%s} integer REFERENCES {%s}".format(col_def['name'], col_def['foreign_key_references'])
 
-      col_def = "{%s} %s"%(name, data_type.value)
+        col_def = "{%s} %s".format(col_def['name'], col_def['data_type'])
 
-      if limit is not None and data_type in [DataTypes.CHAR, DataTypes.VARCHAR]:
-          col_def += "(%s)"%(limit)
+        if col_def.get('limit', None) is not None and col_def['data_type'] in [DataTypes.CHAR.value, DataTypes.VARCHAR.value]:
+            col_def += "(%s)".format(col_def['limit'])
 
-      if not_null:
-          col_def += " NOT NULL"
+        if col_def.get('not_null', None) is not None:
+            col_def += " NOT NULL"
 
-      return col_def
+        return col_def
+      
+    @staticmethod
+    def add(**col_def):
+        """`ADD COLUMN` subclause in **PostgreSQL**, for use in `ALTER TABLE` clauses. Column names will be parameterized to prevent injection, i.e. the `name` passed into this method is not the name of the column, but the name of the column parameter in the clause that is passed into the query cursor.
+
+        :param kwargs: Keyword arguments. The input format should make the `schema.json` input format.
+        :return: Column definition clause for `ADD COLUMN` **PostgreSQL** statement.
+        :rtype: str
+        """
+        add_column = "ADD COLUMN {%s} %s".format(col_def['name'], col_def['data_type'])
+
+        if col_def.get('limit', None) is not None and col_def['data_type'] in [DataTypes.CHAR.value, DataTypes.VARCHAR.value]:
+            add_column += "(%s)".format(col_def['limit'])
+
+        if col_def.get('not_null', None):
+            add_column += " NOT NULL"
+
+        if col_def.get('foreign_key_references', None) is not None:
+            fkr = col_def['foreign_key_references']
+            add_column += "CONSTRAINT fk_%s_%s REFERENCES {%s}".format(col_def['name'], fkr, fkr)
+
+        return add_column
+
+    @staticmethod
+    def drop(name):
+        return "DROP COLUMN {%s}"%name
+  
 
 class Table:
 
@@ -81,15 +97,9 @@ class Table:
       :rtype: string
       """
       create_table = "CREATE TABLE {%s} ("%(table_name)
+
       for col_def in col_defs:
-          col_statement = Column.define(
-              name = col_def['name'], 
-              data_type = DataTypes.convert(col_def.get('type', None)), 
-              limit = col_def.get('limit', None), 
-              primary_key = col_def.get('primary_key', False),
-              foreign_key_references = col_def.get('foreign_key_references', None),
-              not_null = col_def.get('not_null', False)
-          )
+          col_statement = Column.define(**col_def)
 
           create_table += col_statement
 
