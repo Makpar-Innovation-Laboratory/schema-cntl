@@ -19,31 +19,42 @@ from innoldb.qldb import Document
 
 from schema_cntl import settings
 
-def commit_schema(schema):
+def commit(schema):
     schema_doc = Document(table=settings.TABLE, ledger=settings.LEDGER, snapshot=schema)
     schema_doc.save()
     return schema_doc
 
-def generate_revision_history(id, start = 0, no = 1):
+def revision_history(id, start = 0, no = 1):
     schema_doc = Document(table=settings.TABLE, ledger=settings.LEDGER, id=id, stranded=True)
     if start + no > len(schema_doc.strands):
         raise KeyError("Too many strands specified")
     return schema_doc.strands[start:start+no]
 
-def no_of_revisions(id):
+def revisions(id):
     return len(Document(table=settings.TABLE, ledger=settings.LEDGER, id=id, stranded=True).strands)
 
-def generate_differences(id, strand_start_index, strand_end_index):
+def differences(id, strand_start_index, strand_end_index):
     schema_doc = Document(table=settings.TABLE, ledger=settings.LEDGER, id=id, stranded=True)
 
     if strand_start_index > len(schema_doc.strands) - 1 or \
       strand_end_index > len(schema_doc.strands):
         raise ValueError("Specified indices exceed number of strands")
 
-    strand_start = schema_doc.strands[strand_start_index]
-    strand_end = schema_doc.strands[strand_end_index]
+    start_strand = schema_doc.strands[strand_start_index]
+    start_columns = start_strand.schema.tables[0]['columns']
+    start_names = [ col['name'] for col in start_columns ]
+
+    end_strand = schema_doc.strands[strand_end_index]
+    end_columns = end_strand.schema.tables[0]['columns']
+    end_names = [ col['name'] for col in end_columns ]
     
-    print(strand_start.schema.tables[0]['name'])
-    print(strand_start.schema.tables[0]['columns'])
-    print(strand_end.schema.tables[0]['name'])
-    print(strand_end.schema.tables[0]['columns'])
+    # will include new columns, but also altered columns
+    relative_diff = [ col for col in end_columns if col not in start_columns]
+
+    relative_altered = [ col for col in relative_diff if col['name'] in start_names]
+
+    relative_new = [ col for col in relative_diff if col not in relative_altered ]
+
+    print(relative_diff)
+    print(relative_altered)
+    print(relative_new)

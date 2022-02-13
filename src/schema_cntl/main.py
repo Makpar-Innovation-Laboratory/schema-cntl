@@ -8,8 +8,8 @@ APP_DIR= os.path.dirname(os.path.abspath(__file__))
 SRC_DIR = os.path.dirname(APP_DIR)
 sys.path.append(SRC_DIR)
 
-from schema_cntl import settings, schema
-from schema_cntl.schema import commit_schema, generate_revision_history, generate_differences
+from schema_cntl import settings
+from schema_cntl.schema import commit, revision_history, differences
 from schema_cntl.util.logger import getLogger
 
 log = getLogger('schema_cntl.main')
@@ -44,11 +44,11 @@ def save_schema(file, schema):
     with open(file_path, 'w') as outfile:
         json.dump(schema, outfile)
 
-def commit(file):
+def commit_schema(file):
     schema = load_schema(file)
 
     if schema is not None:
-        doc = commit_schema(schema)
+        doc = commit(schema)
 
         if schema.get('id', None) is None or schema.get('meta_id', None) is None:
             schema['id'], schema['meta_id'] = doc.id, doc.meta_id
@@ -57,7 +57,7 @@ def commit(file):
 
         log.info("Schema commited to DOCUMENT(meta_id=%s)", doc.meta_id)
 
-def history(file, start, no):
+def generate_history(file, start, no):
     schema = load_schema(file)
 
     if schema is not None:
@@ -66,14 +66,14 @@ def history(file, start, no):
             log.warning('Schema has no id, please commit before generating history')
             return
 
-        items = generate_revision_history(id=schema['id'], start=start, no=no)
+        items = revision_history(id=schema['id'], start=start, no=no)
 
         for i, item in enumerate(items):
             print_revision_line(i, start)
             pprint(item.schema.to_json())
         
 
-def diff(file, start, end):
+def generate_diff(file, start, end):
     schema = load_schema(file)
 
     if schema is not None:
@@ -82,7 +82,7 @@ def diff(file, start, end):
             log.warning('Schema has no id, please commit before generating revision diff')
             return
 
-        generate_differences(id=schema['id'], strand_start_index=start, strand_end_index=end)
+        differences(id=schema['id'], strand_start_index=start, strand_end_index=end)
         
 
 
@@ -91,18 +91,18 @@ def do_program(args):
 
     if args.action[0] == 'commit':
         if len(args.action) > 1:
-            commit(args.action[1])
+            commit_schema(args.action[1])
         else:
             log.warning("Command is of the form `commit <path-to-schema.json>`")
             return
     
     if args.action[0] == 'history':
-        history(args.action[1], args.start, args.number)
+        generate_history(args.action[1], args.start, args.number)
         return
 
     if args.action[0] == 'diff':
         if len(args.action[1:]) == 3:
-            diff(file=args.action[1], start=int(args.action[2]), end=int(args.action[3]))
+            generate_diff(file=args.action[1], start=int(args.action[2]), end=int(args.action[3]))
             pass
         else:
             log.warning("Command is of the form `diff <revision 1> <revision 2>`")
