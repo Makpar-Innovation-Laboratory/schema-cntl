@@ -1,6 +1,7 @@
 {
   "schema": {
-      "engine": "postgres",
+      "name": "<schema-name>",
+      "engine": "<postgres | mysql | ... >",
       "tables": [
           {
               "name": "<table-name>",

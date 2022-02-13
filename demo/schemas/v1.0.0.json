@@ -6,12 +6,12 @@
               "name": "test_table",
               "columns": [
                   {
-                    "name": "primary_key",
-                    "type": "uuid"
+                    "name": "unique_id",
+                    "primary_key": true
                   },
                   {
                     "name": "sample_field",
-                    "type": "str"
+                    "type": "varchar(100)"
                   }
               ]
           }

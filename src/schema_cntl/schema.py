@@ -14,3 +14,7 @@
 #           i. alter column statements for key, values
 #
 #       c. previous_revision = revision
+
+
+def commit_schema():
+    pass

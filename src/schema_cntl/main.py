@@ -6,7 +6,7 @@ def parse_cli_args(args):
     parser = ArgumentParser()
     parser.add_argument('action', required = True, help = "Actions: commit, generate")
     parser.add_argument('-str', '--start', help="Starting strand of the revision history")
-    parser.add_argument('-end', '--end', action='store_true', help="Ending strand of the revision history")
+    parser.add_argument('-end', '--end', help="Ending strand of the revision history")
     return parser.parse_args()
 
 

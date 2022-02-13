@@ -41,16 +41,20 @@ class Column:
         :return: Column definition clause for `CREATE TABLE` **PostgreSQL** statement.
         :rtype: str
         """
+        # data type is not parameterized in string, so it is converted into an enum before formatting
+        # so user input can never directly touched the query string
+        enumerated_type = DataTypes.convert(col_def['type'])
+        if enumerated_type is None:
+            raise ValueError("No data type specified for column %s".format(col_def['name']))
+
         if col_def.get('primary_key', None) is not None:
             return "{%s} SERIAL PRIMARY KEY".format(col_def['name'])
 
         if col_def.get('foreign_key_references', None) is not None:
             return "{%s} integer REFERENCES {%s}".format(col_def['name'], col_def['foreign_key_references'])
 
-        col_def = "{%s} %s".format(col_def['name'], col_def['data_type'])
+        col_def = "{%s} %s".format(col_def['name'], enumerated_type.value)
 
-        if col_def.get('limit', None) is not None and col_def['data_type'] in [DataTypes.CHAR.value, DataTypes.VARCHAR.value]:
-            col_def += "(%s)".format(col_def['limit'])
 
         if col_def.get('not_null', None) is not None:
             col_def += " NOT NULL"
@@ -65,10 +69,13 @@ class Column:
         :return: Column definition clause for `ADD COLUMN` **PostgreSQL** statement.
         :rtype: str
         """
-        add_column = "ADD COLUMN {%s} %s".format(col_def['name'], col_def['data_type'])
+        # data type is not parameterized in string, so it is converted into an enum before formatting
+        # so user input can never directly touched the query string
+        enumerated_type = DataTypes.convert(col_def['type'])
+        if enumerated_type is None:
+            raise ValueError("No data type specified for column %s".format(col_def['name']))
 
-        if col_def.get('limit', None) is not None and col_def['data_type'] in [DataTypes.CHAR.value, DataTypes.VARCHAR.value]:
-            add_column += "(%s)".format(col_def['limit'])
+        add_column = "ADD COLUMN {%s} %s".format(col_def['name'], enumerated_type.value)
 
         if col_def.get('not_null', None):
             add_column += " NOT NULL"

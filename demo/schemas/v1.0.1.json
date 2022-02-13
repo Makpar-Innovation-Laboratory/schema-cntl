@@ -6,16 +6,16 @@
               "name": "test_table",
               "columns": [
                   {
-                    "name": "primary_key",
-                    "type": "uuid"
+                    "name": "unique_id",
+                    "primary_key": true
                   },
                   {
-                    "name": "sample_string",
-                    "type": "varchar"
+                    "name": "sample_field",
+                    "type": "varchar(100)"
                   },
                   {
                     "name": "sample_int",
-                    "type": "integer"
+                    "type": "int"
                   }
               ]
           }
