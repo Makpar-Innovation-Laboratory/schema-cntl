@@ -7,7 +7,7 @@ TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 APP_DIR = os.path.dirname(TEST_DIR)
 sys.path.append(APP_DIR)
 
-from dialects.postgres import DataTypes, Column
+from dialects.postgres import DataTypes, Column, Table
 
 @pytest.mark.parametrize('string,result',[
   ('bool', DataTypes.BOOL),
@@ -42,7 +42,7 @@ def test_column_definition(name, data_type, limit, fk, pk, nnull, result):
     test_result = Column.define(name,data_type, limit, fk, pk, nnull)
     assert test_result == result
 
-@pytest.mark.parametrize('name,col_defs',[
+@pytest.mark.parametrize('name,col_defs,result',[
   ('table_name', [
         {
             "name": "column_name",
@@ -67,24 +67,23 @@ def test_column_definition(name, data_type, limit, fk, pk, nnull, result):
             "type": "char",
             "limit": 25,
         }
-    ]
-  ),
+    ],
+  "CREATE TABLE {table_name} ({column_name} varchar(100), {column_name_2} int NOT NULL, {column_name_3} SERIAL PRIMARY KEY, {column_name_4} integer REFERENCES {foreign_table}, {column_name_5} char(25));"),
   ('table_name_2', [
         {
             "name": "column_name",
-            "type": "varchar",
-            "limit": 100,
+            "primary_key": True
         },
         {
             "name": "column_name_2",
-            "type": "int",
-            "not_null": True
+            "type": "bool"
         },
         {
             "name": "column_name_3",
-            "primary_key": True,
+            "type" : "date"
         },
-  ])
+  ],
+  "CREATE TABLE {table_name_2} ({column_name} SERIAL PRIMARY KEY, {column_name_2} bool, {column_name_3} date);")
 ])
-def test_table_creation(name, col_defs):
-    pass
+def test_table_creation(name, col_defs, result):
+    assert Table.create(name, *col_defs) == result
