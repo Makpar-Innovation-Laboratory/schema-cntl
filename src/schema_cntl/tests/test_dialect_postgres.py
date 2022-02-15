@@ -50,13 +50,13 @@ def test_belongs(string, enums, result):
   ({
     "name": "fk",
     "foreign_key_references": "foreign_table"
-  }, "{fk} integer REFERENCES {foreign_table}")
+  }, "{fk} integer REFERENCES {fkr}")
 ])
 def test_column_definition(col_def, result):
     assert Column.define(**col_def) == result
 
 @pytest.mark.parametrize('name,col_defs,result',[
-  ('table_name', [
+  ('table_name_1', [
         {
             "name": "column_name",
             "type": "varchar(100)",
@@ -79,7 +79,10 @@ def test_column_definition(col_def, result):
             "type": "char(25)",
         }
     ],
-  "CREATE TABLE {table_name} ({column_name} varchar(100), {column_name_2} int NOT NULL, {column_name_3} SERIAL PRIMARY KEY, {column_name_4} integer REFERENCES {foreign_table}, {column_name_5} char(25));"),
+    ("CREATE TABLE {table_name} ({col_0} varchar(100), {col_1} int NOT NULL, {col_2} SERIAL PRIMARY KEY, {col_3} integer REFERENCES {fkr}, {col_4} char(25));", 
+    ['table_name', 'col_0', 'col_1', 'col_2', 'col_3', 'col_4'],
+    ['table_name_1', 'column_name', 'column_name_2', 'column_name_3', 'column_name_4', 'column_name_5'] ) 
+  ),
   ('table_name_2', [
         {
             "name": "column_name",
@@ -93,8 +96,14 @@ def test_column_definition(col_def, result):
             "name": "column_name_3",
             "type" : "date"
         },
-  ],
-  "CREATE TABLE {table_name_2} ({column_name} SERIAL PRIMARY KEY, {column_name_2} bool, {column_name_3} date);")
+    ],
+    ("CREATE TABLE {table_name} ({col_0} SERIAL PRIMARY KEY, {col_1} bool, {col_2} date);",
+    ['table_name', 'col_0', 'col_1', 'col_2'],
+    ['table_name_2', 'column_name', 'column_name_2', 'column_name_3'])
+  )
 ])
 def test_table_creation(name, col_defs, result):
-    assert Table.create(name, *col_defs) == result
+    actual_result = Table.create(name, *col_defs)
+    assert actual_result[0] == result[0]
+    assert all(actual_result[1][i] == res for i, res in enumerate(result[1]))
+    assert all(actual_result[2][i] == res for i, res in enumerate(result[2]))

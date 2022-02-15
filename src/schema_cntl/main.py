@@ -90,7 +90,7 @@ def generate_schema_revision(file, revision):
     if schema is not None:
 
         if schema.get('id', None) is None:
-            log.warning('Schema has no id, please commit before generating revision diff')
+            log.warning('Schema has no id, please commit before generating schema')
             return
 
         revision_schema(id=schema['id'], strand_no=revision)

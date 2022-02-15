@@ -18,6 +18,7 @@
 from innoldb.qldb import Document
 
 from schema_cntl import settings
+from schema_cntl.dialects.postgres import Table
 
 def commit(schema):
     schema_doc = Document(table=settings.TABLE, ledger=settings.LEDGER, snapshot=schema)
@@ -43,7 +44,10 @@ def revision_schema(id, strand_no):
     revision_doc = schema_doc.strands[strand_no]
 
     for table in revision_doc.schema.tables:
-        print(table['columns'])
+        pieces = Table.create(table['name'], *table['columns'])
+        print('SQL -----------------', pieces[0])
+        print('Parameter Names -----', pieces[1])
+        print('Parameter Values ----', pieces[2])
 
 
 def differences(id, strand_start_index, strand_end_index):

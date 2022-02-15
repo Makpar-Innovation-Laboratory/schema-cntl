@@ -55,7 +55,7 @@ class Column:
             return "{%s} SERIAL PRIMARY KEY"%(col_def['name'])
 
         if col_def.get('foreign_key_references', None) is not None:
-            return "{%s} integer REFERENCES {%s}"%(col_def['name'], col_def['foreign_key_references'])
+            return "{%s} integer REFERENCES {fkr}"%(col_def['name'])
 
         # data type is not parameterized in string, so it is converted into an enum before formatting
         # so user input can never directly touched the query string
@@ -94,8 +94,7 @@ class Column:
             add_column += " NOT NULL"
 
         if col_def.get('foreign_key_references', None) is not None:
-            fkr = col_def['foreign_key_references']
-            add_column += "CONSTRAINT fk_%s_%s REFERENCES {%s}"%(col_def['name'], fkr, fkr)
+            add_column += "CONSTRAINT fk REFERENCES {fkr}"
 
         return add_column
 
@@ -125,12 +124,20 @@ class Table:
       :param table_name: name of table
       :type table_name: string
       :param kwargs: array of column objects from `schema.tables[]` structure, with `name` replaced by a parameterized key.
-      :return: `CREATE TABLE` statement
-      :rtype: string
+      :return: `CREATE TABLE` statement, parameter names, parameter values
+      :rtype: tuple
       """
-      create_table = "CREATE TABLE {%s} ("%(table_name)
+      create_table = "CREATE TABLE {table_name} ("
 
-      for col_def in col_defs:
+      parameters = [ table_name ]
+      parameter_names = [ 'table_name' ]
+      for i, col_def in enumerate(col_defs):
+            # parameterize column_name
+          param_name = 'col_' + str(i)
+          parameters.append(col_def['name'])
+          parameter_names.append(param_name)
+          col_def['name'] = param_name
+
           col_statement = Column.define(**col_def)
 
           create_table += col_statement
@@ -139,6 +146,6 @@ class Table:
               create_table += ", "
 
       create_table += ");"
-      return create_table
+      return create_table, parameter_names, parameters
 
 
