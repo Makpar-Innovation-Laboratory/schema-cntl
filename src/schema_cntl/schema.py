@@ -26,12 +26,25 @@ def commit(schema):
 
 def revision_history(id, start = 0, no = 1):
     schema_doc = Document(table=settings.TABLE, ledger=settings.LEDGER, id=id, stranded=True)
+    
     if start + no > len(schema_doc.strands):
         raise KeyError("Too many strands specified")
+    
     return schema_doc.strands[start:start+no]
 
 def revisions(id):
     return len(Document(table=settings.TABLE, ledger=settings.LEDGER, id=id, stranded=True).strands)
+
+def revision_schema(id, strand_no):
+    schema_doc = Document(table=settings.TABLE, ledger=settings.LEDGER, id=id, stranded=True)
+
+    if strand_no > len(schema_doc.strands) - 1:
+        raise KeyError("Too many strands specified")
+    revision_doc = schema_doc.strands[strand_no]
+
+    for table in revision_doc.schema.tables:
+        print(table['columns'])
+
 
 def differences(id, strand_start_index, strand_end_index):
     schema_doc = Document(table=settings.TABLE, ledger=settings.LEDGER, id=id, stranded=True)

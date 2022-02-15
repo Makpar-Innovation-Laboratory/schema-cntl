@@ -40,7 +40,9 @@ class DataTypes(Enum):
       return False
 
 class Column:
-  
+    RENAME="RENAME COLUMN {old_name} TO {new_name}"
+    ADD_CONST="ADD CONSTRAINT {constraint_name} FOREIGN KEY {fk_name} REFERENCES {primary_table} ({fk_name})"
+
     @staticmethod
     def define(**col_def):
         """Create a column definition clause in **PostgreSQL**. Column names will be parameterized to prevent injection, i.e. the `name` passed into this method is not the name of the column, but the name of the column parameter in the clause that is passed into the query cursor.
@@ -98,8 +100,20 @@ class Column:
         return add_column
 
     @staticmethod
-    def drop(name):
-        return "DROP COLUMN {%s}"%name
+    def rename(**col_def):
+        pass
+
+    @staticmethod
+    def add_constraint(**col_def):
+        pass
+
+    @staticmethod
+    def drop_constraint(**col_def):
+        pass
+
+    @staticmethod
+    def drop(**col_def):
+        return "DROP COLUMN {%s}"%col_def['name']
   
 
 class Table:

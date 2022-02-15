@@ -11,10 +11,6 @@
                         "primary_key": true
                     },
                     {
-                        "name": "sample_field",
-                        "type": "varchar(100)"
-                    },
-                    {
                         "name": "sample_int",
                         "type": "int"
                     }
