@@ -1,16 +1,8 @@
 import logging
 import os
-from dotenv import load_dotenv
 
-APP_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_DIR = os.path.dirname(os.path.dirname(APP_DIR))
-ENV_DIR = os.path.join(PROJECT_DIR, 'env')
-
-if os.path.exists(os.path.join(ENV_DIR, '.env')):
-    load_dotenv(os.path.join(ENV_DIR, '.env'))
-
-LEDGER = os.getenv('LEDGER')
-TABLE = os.getenv('TABLE')
+LEDGER = os.environ.setdefault('LEDGER', 'schema')
+TABLE = os.environ.setdefault('TABLE', 'version_control')
 
 LOG_LEVEL = os.environ.setdefault('LOG_LEVEL', 'NOTSET')
 
