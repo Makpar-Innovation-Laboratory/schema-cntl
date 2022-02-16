@@ -123,7 +123,7 @@ class Table:
 
       :param table_name: name of table
       :type table_name: string
-      :param kwargs: array of column objects from `schema.tables[]` structure, with `name` replaced by a parameterized key.
+      :param `*args`: column objects from `schema.tables[]` structure, with `name` replaced by a parameterized key.
       :return: `CREATE TABLE` statement, parameter names, parameter values
       :rtype: tuple
       """
@@ -147,5 +147,26 @@ class Table:
 
       create_table += ");"
       return create_table, parameter_names, parameters
+
+  @staticmethod
+  def alter(table_name, **col_formulae):
+      alter_table = "ALTER TABLE {table_name} "
+
+      for verb, cols in col_formulae.items():
+          parameters = [ table_name ]
+          parameter_names = [ 'table_name' ]
+
+          for i, formula in enumerate(cols):
+              param_name = 'col_' + str(i)
+              parameters.append(formula['name'])
+              parameter_names.append(param_name)
+              formula['name'] = param_name
+
+          if verb == 'ALTERED':
+              pass
+          elif verb == 'ADDED':
+              pass
+          elif verb == 'REMOVED':
+              pass
 
 

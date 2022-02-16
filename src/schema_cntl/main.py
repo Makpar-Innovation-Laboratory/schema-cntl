@@ -93,7 +93,12 @@ def generate_schema_revision(file, revision):
             log.warning('Schema has no id, please commit before generating schema')
             return
 
-        revision_schema(id=schema['id'], strand_no=revision)
+        create_tables = revision_schema(id=schema['id'], strand_no=revision)
+
+        for table_stmt in create_tables:
+            print('SQL -----------------',  table_stmt[0])
+            print('Parameter Names -----', table_stmt[1])
+            print('Parameter Values ----', table_stmt[2])
 
 def do_program(args):
     args = parse_cli_args(args)
@@ -108,7 +113,7 @@ def do_program(args):
     
     if args.action[0] == 'history':
         if len(args.action[1:]) == 1:
-            generate_history(args.action[1], args.number)
+            generate_history(args.action[1], args.limit)
             return
         command_form = "`history <path-to-schema> --limit <limit>`"
         

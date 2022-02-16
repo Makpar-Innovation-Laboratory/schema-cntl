@@ -19,6 +19,9 @@ from innoldb.qldb import Document
 
 from schema_cntl import settings
 from schema_cntl.dialects.postgres import Table
+from schema_cntl.util.logger import getLogger
+
+log = getLogger('schema_cntl.schema')
 
 def commit(schema):
     schema_doc = Document(table=settings.TABLE, ledger=settings.LEDGER, snapshot=schema)
@@ -41,13 +44,15 @@ def revision_schema(id, strand_no):
 
     if strand_no > len(schema_doc.strands) - 1:
         raise KeyError("Too many strands specified")
+        
     revision_doc = schema_doc.strands[strand_no]
 
+    create_tables = []
     for table in revision_doc.schema.tables:
         pieces = Table.create(table['name'], *table['columns'])
-        print('SQL -----------------', pieces[0])
-        print('Parameter Names -----', pieces[1])
-        print('Parameter Values ----', pieces[2])
+        create_tables.append(pieces)
+    
+    return create_tables
 
 
 def differences(id, strand_start_index, strand_end_index):
@@ -56,6 +61,8 @@ def differences(id, strand_start_index, strand_end_index):
     if strand_start_index > len(schema_doc.strands) - 1 or \
       strand_end_index > len(schema_doc.strands):
         raise ValueError("Specified indices exceed number of strands")
+
+    log.debug('Computing differences in schema revision %s relative to %s', strand_end_index, strand_start_index)
 
     start_strand = schema_doc.strands[strand_start_index]
     start_columns = start_strand.schema.tables[0]['columns']
@@ -76,4 +83,10 @@ def differences(id, strand_start_index, strand_end_index):
     # columns not in diff, but in start
     removed_rel_to_start = [ col for col in start_columns if col['name'] not in end_names]
 
+    formulae = {
+      'ALTERED': altered_rel_to_start,
+      'ADDED': new_rel_to_start,
+      'REMOVED': removed_rel_to_start
+    }
 
+    log.debug('Schema Formula: %s', formulae)
