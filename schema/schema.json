@@ -1,1 +1,27 @@
-{"schema": {"engine": "postgres", "name": "test_schema", "tables": [{"name": "test_table", "columns": [{"name": "unique_id", "primary_key": true}, {"name": "sample_int", "type": "int"}, {"name": "sample_text", "type": "text"}]}]}, "id": "3d595c878cc311eca6a7b07d647734f0", "meta_id": "L7SA0veUrS40aCOa4lXFEd"}
+{
+    "schema": {
+        "engine": "postgres",
+        "name": "test_schema",
+        "tables": [
+            {
+                "name": "test_table",
+                "columns": [
+                    {
+                        "name": "unique_id",
+                        "primary_key": true
+                    },
+                    {
+                        "name": "sample_int",
+                        "type": "int"
+                    },
+                    {
+                        "name": "sample_text",
+                        "type": "text"
+                    }
+                ]
+            }
+        ]
+    },
+    "id": "3d595c878cc311eca6a7b07d647734f0",
+    "meta_id": "L7SA0veUrS40aCOa4lXFEd"
+}
