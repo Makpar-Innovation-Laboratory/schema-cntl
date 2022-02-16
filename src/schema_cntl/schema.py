@@ -62,7 +62,7 @@ def differences(id, strand_start_index, strand_end_index):
       strand_end_index > len(schema_doc.strands):
         raise ValueError("Specified indices exceed number of strands")
 
-    log.debug('Computing differences in schema revision %s relative to %s', strand_end_index, strand_start_index)
+    log.debug('Computing schema differences in revision #%s relative to #%s...', strand_end_index, strand_start_index)
 
     # TODO: compute difference in tables themselves, i.e. addition, subtractions
 

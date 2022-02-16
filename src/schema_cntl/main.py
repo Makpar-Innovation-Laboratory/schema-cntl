@@ -23,6 +23,7 @@ def parse_cli_args(args):
 def print_title(title):
     if settings.LOG_LEVEL in ['INFO', 'DEBUG']:
         print('---------------------------------------------- ', title)
+        print('-------------------------------------------------------------')
 
 def load_schema(file):
     file_path = os.path.join(os.getcwd(), file)
@@ -100,7 +101,7 @@ def generate_schema_revision(file, revision):
         create_tables = revision_schema(id=schema['id'], strand_no=revision)
 
         for table_stmt in create_tables:
-            print(f'Table Schema')
+            print_title(f'Table Schema')
             print('SQL -----------------',  table_stmt[0])
             print('Parameter Names -----', table_stmt[1])
             print('Parameter Values ----', table_stmt[2])

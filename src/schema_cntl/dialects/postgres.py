@@ -163,11 +163,15 @@ class Table:
               if verb == 'ALTERED':
                   pass
               elif verb == 'ADDED':
-                  alter_table = "ALTER TABLE {table_name} "
+                  if alter_table is None:
+                    alter_table = "ALTER TABLE {table_name} "
+                  else:
+                    alter_table += ", "
                   alter_table += Column.add(**formula)
               elif verb == 'REMOVED':
-                  alter_table = "ALTER TABLE {table_name} "
-                  alter_table += Column.drop(**formula)
+                  if alter_table is None:
+                    alter_table = "ALTER TABLE {table_name} "
+                  alter_table += Column.drop(**formula) 
 
           if len(cols) > 0:
               accumulated = len(cols)
