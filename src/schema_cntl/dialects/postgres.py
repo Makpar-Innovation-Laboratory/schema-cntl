@@ -146,12 +146,16 @@ class Table:
 
   @staticmethod
   def alter(table_name, **col_formulae):
-      alter_table = "ALTER TABLE {table_name} "
-
+      statement = ""
       parameters = [ table_name ]
       parameter_names = [ 'table_name' ]
       accumulated = 0
+
       for verb, cols in col_formulae.items():
+          alter_table = None
+
+          print(len(cols))
+          print(accumulated)
           for i, formula in enumerate(cols):
               param_name = 'col_' + str(i + accumulated)
               parameters.append(formula['name'])
@@ -161,14 +165,18 @@ class Table:
               if verb == 'ALTERED':
                   pass
               elif verb == 'ADDED':
+                  alter_table = "ALTER TABLE {table_name} "
                   alter_table += Column.add(**formula)
               elif verb == 'REMOVED':
+                  alter_table = "ALTER TABLE {table_name} "
                   alter_table += Column.drop(**formula)
 
           if len(cols) > 0:
-              accumulated = len(cols) - 1
+              accumulated = len(cols)
 
-      alter_table += ";"
-      return alter_table, parameter_names, parameters
+          if alter_table is not None:
+              statement += alter_table +"; "
+
+      return statement, parameter_names, parameters
 
 

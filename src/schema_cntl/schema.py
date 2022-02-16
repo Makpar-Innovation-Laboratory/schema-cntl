@@ -95,7 +95,7 @@ def differences(id, strand_start_index, strand_end_index):
             # columns not in diff, but in start
             removed_rel_to_start = [ col for col in start_columns if col['name'] not in end_names]
 
-            formulae = {
+            formulae= {
               'ALTERED': altered_rel_to_start,
               'ADDED': new_rel_to_start,
               'REMOVED': removed_rel_to_start
