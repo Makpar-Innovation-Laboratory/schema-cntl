@@ -154,8 +154,6 @@ class Table:
       for verb, cols in col_formulae.items():
           alter_table = None
 
-          print(len(cols))
-          print(accumulated)
           for i, formula in enumerate(cols):
               param_name = 'col_' + str(i + accumulated)
               parameters.append(formula['name'])

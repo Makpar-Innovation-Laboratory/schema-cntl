@@ -20,10 +20,9 @@ def parse_cli_args(args):
     parser.add_argument('-l', '--limit', help="Number of records in the revision history", default=1, type=int)
     return parser.parse_args(args)
 
-def print_revision_line(index, start = 0):
+def print_title(title):
     if settings.LOG_LEVEL in ['INFO', 'DEBUG']:
-        index += start
-        print('---------------------------------------------- REVISION ', index)
+        print('---------------------------------------------- ', title)
 
 def load_schema(file):
     file_path = os.path.join(os.getcwd(), file)
@@ -68,7 +67,7 @@ def generate_history(file, no):
         items = revision_history(id=schema['id'], start=0, no=no)
 
         for i, item in enumerate(items):
-            print_revision_line(i, 0)
+            print_title(f'Revision {i}')
             pprint(item.schema.to_json())
         
 
@@ -83,7 +82,8 @@ def generate_diff(file, start, end):
 
         alter_tables = differences(id=schema['id'], strand_start_index=start, strand_end_index=end)
         
-        for table_stmt in alter_tables:
+        for i, table_stmt in enumerate(alter_tables):
+            print_title(f'Revision Change #{i}')
             print('SQL -----------------',  table_stmt[0])
             print('Parameter Names -----', table_stmt[1])
             print('Parameter Values ----', table_stmt[2])
@@ -100,6 +100,7 @@ def generate_schema_revision(file, revision):
         create_tables = revision_schema(id=schema['id'], strand_no=revision)
 
         for table_stmt in create_tables:
+            print(f'Table Schema')
             print('SQL -----------------',  table_stmt[0])
             print('Parameter Names -----', table_stmt[1])
             print('Parameter Values ----', table_stmt[2])
