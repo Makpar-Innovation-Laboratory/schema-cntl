@@ -14,6 +14,7 @@ TABLE = os.getenv('TABLE')
 
 LOG_LEVEL = os.environ.setdefault('LOG_LEVEL', 'NOTSET')
 
+
 def get_log_level():
     """Return the current **LOG_LEVEL** in the settings as a string.
 
