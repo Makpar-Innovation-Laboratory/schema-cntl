@@ -64,29 +64,45 @@ def differences(id, strand_start_index, strand_end_index):
 
     log.debug('Computing differences in schema revision %s relative to %s', strand_end_index, strand_start_index)
 
+    # TODO: compute difference in tables themselves, i.e. addition, subtractions
+
+    alter_tables = []
+
     start_strand = schema_doc.strands[strand_start_index]
-    start_columns = start_strand.schema.tables[0]['columns']
-    start_names = [ col['name'] for col in start_columns ]
-
     end_strand = schema_doc.strands[strand_end_index]
-    end_columns = end_strand.schema.tables[0]['columns']
-    end_names = [ col['name'] for col in end_columns ]
-    
-    diff_rel_to_start = [ col for col in end_columns if col not in start_columns]
 
-    # columns whose names are in diff, but whose properties are different
-    altered_rel_to_start = [ col for col in diff_rel_to_start if col['name'] in start_names]
+    end_table_names = [ tb['name'] for tb in end_strand.schema.tables ]
 
-    # columns whose names are in diff and not in start at all
-    new_rel_to_start = [ col for col in diff_rel_to_start if col not in altered_rel_to_start ]
+    for table in start_strand.schema.tables:
+        if table['name'] in end_table_names:
 
-    # columns not in diff, but in start
-    removed_rel_to_start = [ col for col in start_columns if col['name'] not in end_names]
+            start_columns = start_strand.schema.tables[0]['columns']
+            start_names = [ col['name'] for col in start_columns ]
 
-    formulae = {
-      'ALTERED': altered_rel_to_start,
-      'ADDED': new_rel_to_start,
-      'REMOVED': removed_rel_to_start
-    }
+            end_columns = end_strand.schema.tables[0]['columns']
+            end_names = [ col['name'] for col in end_columns ]
+            
+              # NOTE: columns in end but not in start, by strict property 
+              # equality, i.e. a column with the same name but different 
+              # data type will get caught in this generator expression.
+            diff_rel_to_start = [ col for col in end_columns if col not in start_columns]
+              # therefore, find columns whose names are in diff, but whose 
+              # properties are different
+            altered_rel_to_start = [ col for col in diff_rel_to_start if col['name'] in start_names]
+              # columns whose names are in diff and not in start at all
+            new_rel_to_start = [ col for col in diff_rel_to_start if col not in altered_rel_to_start ]
 
-    log.debug('Schema Formula: %s', formulae)
+            # columns not in diff, but in start
+            removed_rel_to_start = [ col for col in start_columns if col['name'] not in end_names]
+
+            formulae = {
+              'ALTERED': altered_rel_to_start,
+              'ADDED': new_rel_to_start,
+              'REMOVED': removed_rel_to_start
+            }
+
+            log.debug('Schema Formula: %s', formulae)
+
+            alter_tables.append(Table.alter(settings.TABLE, **formulae))
+
+    return alter_tables

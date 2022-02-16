@@ -99,10 +99,6 @@ class Column:
         return add_column
 
     @staticmethod
-    def rename(**col_def):
-        pass
-
-    @staticmethod
     def add_constraint(**col_def):
         pass
 
@@ -152,21 +148,27 @@ class Table:
   def alter(table_name, **col_formulae):
       alter_table = "ALTER TABLE {table_name} "
 
+      parameters = [ table_name ]
+      parameter_names = [ 'table_name' ]
+      accumulated = 0
       for verb, cols in col_formulae.items():
-          parameters = [ table_name ]
-          parameter_names = [ 'table_name' ]
-
           for i, formula in enumerate(cols):
-              param_name = 'col_' + str(i)
+              param_name = 'col_' + str(i + accumulated)
               parameters.append(formula['name'])
               parameter_names.append(param_name)
               formula['name'] = param_name
 
-          if verb == 'ALTERED':
-              pass
-          elif verb == 'ADDED':
-              pass
-          elif verb == 'REMOVED':
-              pass
+              if verb == 'ALTERED':
+                  pass
+              elif verb == 'ADDED':
+                  alter_table += Column.add(**formula)
+              elif verb == 'REMOVED':
+                  alter_table += Column.drop(**formula)
+
+          if len(cols) > 0:
+              accumulated = len(cols) - 1
+
+      alter_table += ";"
+      return alter_table, parameter_names, parameters
 
 

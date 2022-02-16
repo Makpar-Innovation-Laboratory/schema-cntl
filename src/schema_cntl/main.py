@@ -81,8 +81,12 @@ def generate_diff(file, start, end):
             log.warning('Schema has no id, please commit before generating revision diff')
             return
 
-        differences(id=schema['id'], strand_start_index=start, strand_end_index=end)
+        alter_tables = differences(id=schema['id'], strand_start_index=start, strand_end_index=end)
         
+        for table_stmt in alter_tables:
+            print('SQL -----------------',  table_stmt[0])
+            print('Parameter Names -----', table_stmt[1])
+            print('Parameter Values ----', table_stmt[2])
 
 def generate_schema_revision(file, revision):
     schema = load_schema(file)
