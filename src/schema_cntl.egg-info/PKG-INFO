@@ -1,0 +1,26 @@
+Metadata-Version: 2.1
+Name: schema-cntl
+Version: 1.0.0
+Summary: a schema version control system
+Home-page: https://innolab-coverage.makpar-innovation.net
+Author: Makpar Innovation Lab
+Author-email: gmoore@makpar.com
+License: GNU GPL v3
+Project-URL: Source, https://github.com/Makpar-Innovation-Laboratory/schema-cntl
+Keywords: aws,qldb,quantum-ledger-database,schema,version-control
+Platform: any
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+
+
+Notes
+
+1. there is no way to know, given two version of a schema with different fields, whether or not the fields were renamed or dropped/added. 
+
+2. need to take the opinion that fields cannot be renamed once named. that way, the schema_cntl can determine what to do when it encounters new fields. 
+
+3. data types of columns can still be altered, just not the name.
+
+

@@ -75,7 +75,7 @@ def differences(id, strand_start_index, strand_end_index):
               # columns whose names are in diff and not in start at all
             new_rel_to_start = [ col for col in diff_rel_to_start if col not in altered_rel_to_start ]
 
-            # columns not in diff, but in start
+              # columns not in diff, but in start
             removed_rel_to_start = [ col for col in start_columns if col['name'] not in end_names]
 
             formulae= {

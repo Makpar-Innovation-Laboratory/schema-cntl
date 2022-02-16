@@ -1,0 +1,2 @@
+[console_scripts]
+innoldb = schema_cntl.main:entrypoint
