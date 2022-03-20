@@ -9,6 +9,8 @@ source $PROJECT_DIR/env/.env
 if [ -d $PROJECT_DIR/dist ]
 then
   rm -r $PROJECT_DIR/dist
+else
+  mkdir $PROJECT_DIR/dist
 fi
 
 python -m build

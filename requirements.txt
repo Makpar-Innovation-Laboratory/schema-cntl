@@ -1,3 +1,8 @@
+# Application Requirements
 innoldb==1.0.15
 psycopg2-binary==2.9.3
 python-dotenv==0.19.2
+
+# Build Requirements
+build==0.7.0
+twine==3.8.0
